@@ -1,38 +1,19 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-const { MongoClient, ObjectID } = require("mongodb");
-const bodyParser = require("body-parser");
+const { ObjectID } = require("mongodb");
+const getConnection = require("./mongodb"); // Import getConnection function
 app.use(express.json()); // parse application/json
 const ObjectId = require("mongodb").ObjectId;
-
-// set url for mongoDB
-const dbUrl =
-  "mongodb+srv://ecommerce:yQorDDcUREZaXdBy@node-task-manager.a0yvigo.mongodb.net/?retryWrites=true&w=majority&appName=Node-task-manager";
-
-let client = null;
-
-const getConnection = async () => {
-  if (client == null) {
-    client = new MongoClient(dbUrl, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    await client.connect();
-    console.log("Connected to MongoDB Atlas");
-  }
-  return client;
-};
 
 app.get("/product", async (req, res) => {
   try {
     let client = await getConnection();
-    const collection = client.db("03-TASK-MANAGER").collection("product");
+    const collection = client.db("store").collection("product");
     const data = await collection.find({}).toArray();
     res.send({ count: data.length, data: data });
   } catch (err) {
-    console.log(err);
-    console.log("no data");
+    return err;
   }
 });
 
@@ -42,14 +23,16 @@ app.get("/product/:_id", async (req, res) => {
   }
   try {
     let client = await getConnection();
-    const collection = client.db("03-TASK-MANAGER").collection("product");
+    const collection = client.db("store").collection("product");
     const data = await collection.findOne({
       _id: new ObjectId(req.params._id),
     });
+    if (!data) {
+      return res.status(400).send("Not Found");
+    }
     res.send(data);
   } catch (err) {
-    console.log(err);
-    console.log("no product found");
+    return err;
   }
 });
 
@@ -60,7 +43,7 @@ app.post("/product", async (req, res) => {
 
   try {
     let client = await getConnection();
-    const collection = client.db("03-TASK-MANAGER").collection("product");
+    const collection = client.db("store").collection("product");
     await collection.insertOne({
       title: req.body?.title,
       price: req.body?.price,
@@ -86,8 +69,8 @@ app.put("/product", async (req, res) => {
   try {
     // connection to mongoDB
     let client = await getConnection();
-    const collection = client.db("03-TASK-MANAGER").collection("product");
-    await collection.updateOne(
+    const collection = client.db("store").collection("product");
+    await collection.findOneAndUpdate(
       { _id: new ObjectId(req.body._id) },
 
       {
@@ -106,6 +89,7 @@ app.put("/product", async (req, res) => {
     return res.send("updated Successfully.....");
   } catch (err) {
     console.log(err);
+    res.status(500).send(err.message);
   }
 });
 
@@ -117,8 +101,8 @@ app.delete("/product/:_id", async (req, res) => {
 
   try {
     let client = await getConnection();
-    const collection = client.db("03-TASK-MANAGER").collection("product");
-    await collection.deleteOne({ _id: new ObjectId(req.params._id) }),
+    const collection = client.db("store").collection("product");
+    await collection.findOneAndDelete({ _id: new ObjectId(req.params._id) }),
       function (err, res) {
         if (err) throw err;
       };
@@ -128,6 +112,10 @@ app.delete("/product/:_id", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+  });
+}
+
+module.exports = app;
