@@ -5,6 +5,10 @@ const { ObjectID } = require("mongodb");
 const getConnection = require("./mongodb"); // Import getConnection function
 app.use(express.json()); // parse application/json
 const ObjectId = require("mongodb").ObjectId;
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
+
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/product", async (req, res) => {
   try {
