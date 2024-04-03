@@ -7,9 +7,116 @@
   },
   "basePath": "/",
   "paths": {
+    "/welcome": {
+      "get": {
+        "summary": "Get welcome message",
+        "produces": ["text/plain"],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Welcome message",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "summary": "Register a new user",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User details for registration",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User successfully registered",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Bad request - All input is required"
+          },
+          "409": {
+            "description": "Conflict - User already exists"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login with user credentials",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User credentials for login",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid credentials"
+          }
+        }
+      }
+    },
     "/product": {
       "get": {
         "summary": "Get all products",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -28,6 +135,32 @@
       },
       "post": {
         "summary": "Create a new product",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Product object",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Product" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "description": "Bad request" }
+        }
+      },
+      "put": {
+        "summary": "update a product",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "body",
@@ -46,6 +179,11 @@
     "/product/{_id}": {
       "get": {
         "summary": "Get a product by ID",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           { "name": "_id", "in": "path", "required": true, "type": "string" }
         ],
@@ -58,25 +196,13 @@
           "404": { "description": "Not found" }
         }
       },
-      "put": {
-        "summary": "Update a product",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "description": "Product object",
-            "required": true,
-            "schema": { "$ref": "#/definitions/Product" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Success" },
-          "400": { "description": "Bad request" },
-          "500": { "description": "Internal server error" }
-        }
-      },
       "delete": {
         "summary": "Delete a product by ID",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           { "name": "_id", "in": "path", "required": true, "type": "string" }
         ],
@@ -85,6 +211,16 @@
           "400": { "description": "Bad request" }
         }
       }
+    }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "bearerFormat": "JWT",
+      "scheme": "bearer",
+      "description": "Bearer authentication token"
     }
   },
   "definitions": {
@@ -98,6 +234,26 @@
         "size": { "type": "string" },
         "description": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
       }
     }
   }
