@@ -1,22 +1,34 @@
 const express = require("express");
 const app = express();
-const port = 3000;
-const { ObjectID } = require("mongodb");
 const getConnection = require("./mongodb"); // Import getConnection function
 app.use(express.json()); // parse application/json
 const ObjectId = require("mongodb").ObjectId;
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger.json");
 require("dotenv").config();
 const { scrypt, randomBytes, timingSafeEqual } = require("crypto");
 const jwt = require("jsonwebtoken");
 const auth = require("./middleware/auth");
+const swaggerJsdoc = require("swagger-jsdoc");
 
 const { promisify } = require("util");
 
 const scryptAsync = promisify(scrypt);
 
-app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const options = {
+  swaggerDefinition: require("./swagger.json"),
+  apis: [],
+};
+
+const swaggerSpec = swaggerJsdoc(options);
+
+app.use(
+  "/swagger",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCssUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css",
+  })
+);
 
 app.get("/welcome", auth, (req, res) => {
   res.status(200).send(req.user);
@@ -245,8 +257,8 @@ app.post("/login", async (req, res) => {
 });
 
 if (process.env.NODE_ENV !== "test") {
-  app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+  app.listen(3000, () => {
+    console.log(`Example app listening on port ${3000}`);
   });
 }
 

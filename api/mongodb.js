@@ -1,7 +1,6 @@
 const { MongoClient } = require("mongodb");
 
-const dbUrl =
-  "mongodb+srv://ecommerce:yQorDDcUREZaXdBy@node-task-manager.a0yvigo.mongodb.net/?retryWrites=true&w=majority&appName=Node-task-manager";
+const dbUrl = process.env.MOGNO_URI;
 
 let client = null;
 
