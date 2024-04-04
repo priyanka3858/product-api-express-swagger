@@ -200,7 +200,7 @@ app.post("/login", async (req, res) => {
 
     // Validate user input
     if (!(email && password)) {
-      res.status(400).send("All input is required");
+      res.status(400).send("email and password required");
     }
     // Validate if user exist in our database
     let client = await getConnection();
