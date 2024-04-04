@@ -25,10 +25,21 @@ app.use(
   "/swagger",
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
+    customCss:
+      ".swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }",
     customCssUrl:
-      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css",
+      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.6.2/swagger-ui.min.css",
   })
 );
+
+app.get("/", (req, res) => {
+  res.set("Content-Type", "text/html");
+  res.send(
+    Buffer.from(
+      "<h1>Welcome!</h1>  <div> <div class='container-link'> </div>   <a href='/swagger/'>API Docs</a> <div>"
+    )
+  );
+});
 
 app.get("/welcome", auth, (req, res) => {
   res.status(200).send(req.user);
