@@ -1,12 +1,10 @@
 const { MongoClient } = require("mongodb");
 
-const dbUrl = process.env.MOGNO_URI;
-
 let client = null;
 
 const getConnection = async () => {
   if (client == null) {
-    client = new MongoClient(dbUrl, {
+    client = new MongoClient(process.env.MOGNO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
